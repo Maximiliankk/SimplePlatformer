@@ -67,23 +67,46 @@ public class PlatformerController : MonoBehaviour
     void Update()
     {
         var padState = GamePad.GetState();
-        
-        // start button is pressed
-        if (padState.Pressed(CButton.Start))
+
+        if (GamePad.AnyConnected()) // if using gamepad
         {
-            ToggleMenu();
+            // start button is pressed
+            if (padState.Pressed(CButton.Start))
+            {
+                ToggleMenu();
+            }
+            // Right bumper is held, and right stick is pressed
+            if (GamePad.GetButton(CButton.RB, carbonInputId) && padState.Pressed(CButton.LS))
+            {
+                // reload current level
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+            // right bumper is held and left bumper is pressed
+            if (GamePad.GetButton(CButton.RB, carbonInputId) && padState.Pressed(CButton.LB))
+            {
+                // go to first level
+                SceneManager.LoadScene(0);
+            }
         }
-        // Right bumper is held, and right stick is pressed
-        if (GamePad.GetButton(CButton.RB, carbonInputId) && padState.Pressed(CButton.RS))
+        else // if using keyboard
         {
-            // reload current level
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-        // right bumper is held and left bumper is pressed
-        if (GamePad.GetButton(CButton.RB, carbonInputId) && padState.Pressed(CButton.LB))
-        {
-            // go to first level
-            SceneManager.LoadScene(0);
+            // start button is pressed
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                ToggleMenu();
+            }
+            // Shift is held and R is pressed
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.R))
+            {
+                // reload current level
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+            // R is held and G is pressed
+            if (Input.GetKey(KeyCode.R) && Input.GetKeyDown(KeyCode.G))
+            {
+                // go to first level
+                SceneManager.LoadScene(0);
+            }
         }
 
         // calculate input movement direction
@@ -161,9 +184,20 @@ public class PlatformerController : MonoBehaviour
 
     private void OnGUI()
     {
-        if (GUI.Button(new Rect(5, 5, 150, 30), "Menu (press start)"))
+        var padState = GamePad.GetState();
+        if (GamePad.AnyConnected())
         {
-            ToggleMenu();
+            if (GUI.Button(new Rect(5, 5, 150, 30), "Menu (press Start)"))
+            {
+                ToggleMenu();
+            }
+        }
+        else
+        {
+            if (GUI.Button(new Rect(5, 5, 150, 30), "Menu (M)"))
+            {
+                ToggleMenu();
+            }
         }
 
         if (toggleMenu)
@@ -172,9 +206,20 @@ public class PlatformerController : MonoBehaviour
             var verticalStartPos = 50;
             var horizontalStartPos = 60;
             var horizontalPadding = 250;
-            GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "Left Stick.....Move"); verticalStartPos += verticalPadding;
-            GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "A.....Jump"); verticalStartPos += verticalPadding;
-            GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "Hold right bumper + Press left stick......Restart Game"); verticalStartPos += verticalPadding;
+            if(GamePad.AnyConnected())
+            {
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "Left Stick.....Move"); verticalStartPos += verticalPadding;
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "A.....Jump"); verticalStartPos += verticalPadding;
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "Hold right bumper + Press left bumper......Restart Level"); verticalStartPos += verticalPadding;
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "Hold right bumper + Press left stick......Restart Game"); verticalStartPos += verticalPadding;
+            }
+            else
+            {
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "WASD.....Move"); verticalStartPos += verticalPadding;
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "Space.....Jump"); verticalStartPos += verticalPadding;
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "Shift + R......Restart Level"); verticalStartPos += verticalPadding;
+                GUI.Label(new Rect(horizontalStartPos, verticalStartPos, horizontalPadding, verticalPadding), "R + G......Restart Game"); verticalStartPos += verticalPadding;
+            }
         }
     }
 
